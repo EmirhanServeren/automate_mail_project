@@ -2,6 +2,8 @@ import pandas as pd
 import time         # use time to work with dates and times
 import json         # use json to read the protected keys
 import smtplib      # use smtplib to send emails
+import os                   # for directory operations
+from pathlib import Path    # use pathlib to get the absolute path to the script's directory
 # mysql connection related libraries
 import mysql.connector
 from mysql.connector import Error
@@ -10,9 +12,12 @@ from mysql.connector import Error
 def read_keys_from_json(filepath):
     with open(filepath) as config_file:
         return json.load(config_file)
+# get the absolute path to the script's directory
+script_dir = Path.cwd()
+
 # connect to mysql database
 def connect_mysql():
-    keys = read_keys_from_json('mysql_keys.json')
+    keys = read_keys_from_json(os.path.join(script_dir, 'mysql_keys.json'))
     connection = mysql.connector.connect(
             host = keys['host'],
             user = keys['user'],
@@ -101,7 +106,7 @@ def mail_context_generator():
         pass
 # smtp function to send mails
 def automated_mailing(receiver_email, mail_context):
-    smtp_keys = read_keys_from_json('smtp_keys.json')   # read json to get smtp keys
+    smtp_keys = read_keys_from_json(os.path.join(script_dir, 'smtp_keys.json'))   # read json to get smtp keys
     with smtplib.SMTP(smtp_keys['smtp_server'], smtp_keys['smtp_port']) as smtp:
         smtp.starttls()
         smtp.login(smtp_keys['smtp_username'], smtp_keys['smtp_password'])
